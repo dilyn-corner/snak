@@ -1,0 +1,4 @@
+compress=cat
+root_type=ext4
+root=UUID=D2B9-64AE
+hooks=proc,systemd-udev

@@ -1,0 +1,15 @@
+#!/bin/sh -e
+
+sed -i 's/bash/sh/' install-sh
+
+export DEBUG=-DNDEBUG
+export OPTIMIZER="$CFLAGS -flto=auto"
+
+./configure \
+    --prefix=/usr \
+    --sbindir=/usr/bin \
+    --libexecdir=/usr/lib \
+    --enable-gettext=no
+
+make
+make -j1 DIST_ROOT="$1" install install-dev

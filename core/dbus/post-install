@@ -1,0 +1,9 @@
+#!/bin/sh -e
+
+addgroup -S                                  messagebus || true
+adduser  -SDH -s /sbin/nologin -G messagebus messagebus || true
+
+chown -v root:messagebus "$1/usr/libexec/dbus-daemon-launch-helper"
+chmod -v      4750       "$1/usr/libexec/dbus-daemon-launch-helper"
+
+dbus-uuidgen --ensure=/etc/machine-id

@@ -1,0 +1,20 @@
+#!/bin/sh -e
+
+sed -i '/install -m.*STA/d' libcap/Makefile
+
+mk() {
+    make \
+        GOLANG=no \
+        PREFIX=/usr \
+        SBINDIR=/usr/bin \
+        LIBDIR=/usr/lib \
+        PKGCONFIGDIR=/usr/lib/pkgconfig \
+        RAISE_SETFCAP=no \
+        INDENT=" " \
+        "$@"
+}
+
+mk
+mk DESTDIR="$1" install
+
+install -Dm644 libcap/libcap.a "$1/usr/lib/libcap.a"

@@ -1,0 +1,25 @@
+#!/bin/sh -e
+
+command -v tinyramfs > /dev/null || {
+    echo Tinyramfs not found!
+    echo Tinyramfs is the default initrd generator.
+    echo Please install tinyramfs to generate the initrd.
+}
+
+[ -n "$KISS_EFI_PART" ] || {
+    echo KISS_EFI_PART is not set!
+    echo If your EFI partition is mounted somewhere NOT /boot,
+    echo Please set KISS_EFI_PART to the directory
+    echo you mount your EFI partition to.
+    echo If you place your EFI binaries in a peculiar location,
+    echo e.g. some subdirectory of your EFI partition,
+    echo please set KISS_EFI_PART to the directory you want the
+    echo initrd installed to.
+    echo The default initrd install location is /boot.
+}
+
+read -r kver _ < "$1/var/db/kiss/installed/linux/version"
+
+tinyramfs -f -k "${kver}+" "$1/${KISS_EFI_PART:-boot}/initrd.img"
+
+ln -sf "$1/initrd.img" "$1/{KISS_EFI_PART:-boot}/initrd.img-${kver}"

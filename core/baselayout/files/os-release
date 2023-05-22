@@ -1,0 +1,8 @@
+NAME="snak Linux"
+PRETTY_NAME="snak Linux"
+ID=snak
+BUILD_ID=rolling
+HOME_URL="https://github.com/dilyn-corner/snak"
+DOCUMENTATION_URL="https://github.com/dilyn-corner/snak"
+SUPPORT_URL="https://github.com/dilyn-corner/snak"
+BUG_REPORT_URL="https://github.com/dilyn-corner/snak"

@@ -1,0 +1,20 @@
+#!/bin/sh -e
+
+./configure --prefix=/usr \
+    --sysconfdir=/etc \
+    --localstatedir=/var \
+    --disable-doxygen-docs \
+    --disable-xml-docs \
+    --disable-static \
+    --with-console-auth-dir=/run/console \
+    --with-system-pid-file=/run/dbus/pid \
+    --with-system-socket=/run/dbus/system_bus_socket \
+    --enable-user-session \
+    --with-systemdsystemunitdir=/usr/lib/systemd/system
+
+make
+make DESTDIR="$1" install
+
+mkdir -pv "$1/etc/dbus-1/"
+
+install -m644 session-local.conf "$1/etc/dbus-1/"

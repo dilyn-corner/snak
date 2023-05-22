@@ -1,0 +1,7 @@
+https://github.com/systemd/systemd/archive/refs/tags/v253.tar.gz
+files/system-session
+files/systemd-user
+files/20-wired.network
+files/25-wireless.network
+files/dns_servers.conf
+patches/posix-ln-realpath.patch

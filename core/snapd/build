@@ -1,0 +1,96 @@
+#!/bin/sh -e
+
+# Golang things
+export GOPATH="$PWD/go"
+export GO111MODULE=on
+export GOFLAGS="$GOFLAGS -modcacherw -trimpath -mod=vendor"
+
+for bin in snap snapd snap-seccomp snap-failure \
+           snapd-apparmor snapctl snap-exec snap-update-ns; do
+    case $bin in
+        snapctl|snap-exec|snap-update-ns)
+            go build \
+                $GOFLAGS \
+                -buildmode=pie \
+                -ldflags "-w -s -linkmode external -extldflags '$LDFLAGS -static'" \
+                -o go/bin/$bin ./cmd/$bin ;;
+        *)
+            go build \
+                $GOFLAGS \
+                -o go/bin/$bin ./cmd/$bin ;;
+    esac
+done
+
+make -C data \
+    BINDIR=/usr/bin \
+    LIBEXECDIR=/usr/lib \
+    SYSTEMDSYSTEMUNITDIR=/usr/lib/systemd/system \
+    SNAP_MOUNT_DIR=/var/lib/snapd/snap \
+    SNAPD_ENVIRONMENT_FILE=/etc/default/snapd \
+    install
+
+(
+    ./mkversion.sh ${2}-1
+
+    cd cmd
+
+    autoreconf -sfi
+
+    ./configure \
+        --prefix=/usr \
+        --libexecdir=/usr/lib/snapd \
+        --enable-static-libapparmor \
+        --enable-static-libcap \
+        --enable-merged-usr
+
+    make
+    make DESTDIR="$1" install
+)
+
+install -Dm755 go/bin/snap           "$1/usr/bin/snap"
+install -Dm755 go/bin/snapd          "$1/usr/lib/snapd/snapd"
+install -Dm755 go/bin/snapctl        "$1/usr/lib/snapd/snapctl"
+install -Dm755 go/bin/snap-exec      "$1/usr/lib/snapd/snap-exec"
+install -Dm755 go/bin/snap-seccomp   "$1/usr/lib/snapd/snap-seccomp"
+install -Dm755 go/bin/snap-failure   "$1/usr/lib/snapd/snap-failure"
+install -Dm755 go/bin/snapd-apparmor "$1/usr/lib/snapd/snapd-apparmor"
+install -Dm755 go/bin/snap-update-ns "$1/usr/lib/snapd/snap-update-ns"
+
+ln -sf /usr/lib/snapd/snapctl "$1/usr/bin/snapctl"
+
+# pre-create directories
+install -dm755 "$1/var/cache/snapd"
+install -dm111 "$1/var/lib/snapd/void"
+install -dm700 "$1/var/lib/snapd/cache"
+install -dm755 "$1/var/lib/snapd/snap"
+install -dm755 "$1/var/lib/snapd/mount"
+install -dm755 "$1/var/lib/snapd/snaps"
+install -dm700 "$1/var/lib/snapd/cookie"
+install -dm755 "$1/var/lib/snapd/device"
+install -dm755 "$1/var/lib/snapd/hostfs"
+install -dm755 "$1/var/lib/snapd/lib/gl"
+install -dm755 "$1/var/lib/snapd/inhibit"
+install -dm755 "$1/var/lib/snapd/apparmor"
+install -dm755 "$1/var/lib/snapd/snap/bin"
+install -dm755 "$1/var/lib/snapd/lib/gl32"
+install -dm755 "$1/var/lib/snapd/lib/glvnd"
+install -dm755 "$1/var/lib/snapd/assertions"
+install -dm755 "$1/var/lib/snapd/lib/vulkan"
+install -dm755 "$1/var/lib/snapd/seccomp/bpf"
+install -dm755 "$1/var/lib/snapd/dbus-1/services"
+install -dm755 "$1/var/lib/snapd/desktop/applications"
+install -dm755 "$1/var/lib/snapd/dbus-1/system-services"
+
+# Install man file
+mkdir -p "$1/usr/share/man/man8"
+go/bin/snap help --man > "$1/usr/share/man/man8/snap.8"
+
+# Remove snappy core specific units and scripts
+rm -f "$1/usr/bin/ubuntu-core-launcher"
+rm -f "$1/usr/lib/snapd/system-shutdown"
+rm -f "$1/usr/lib/snapd/snapd.core-fixup.sh"
+rm -f "$1/usr/lib/systemd/system/snapd.core-fixup."*
+rm -f "$1/usr/lib/systemd/system/snapd.snap-repair."*
+rm -f "$1/usr/lib/systemd/system/snapd.autoimport.service"
+rm -f "$1/usr/lib/systemd/system/snapd.system-shutdown.service"
+rm -f "$1/usr/lib/systemd/system/snapd.recovery-chooser-trigger.service"

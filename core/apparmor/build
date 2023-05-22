@@ -1,0 +1,70 @@
+#!/bin/sh -e
+
+patch -p1 < no-po.patch
+
+(
+    cd sed
+
+    export CFLAGS="$CFLAGS -static"
+    
+    ./configure \
+        --prefix=/usr
+    
+    make
+    make DESTDIR="$OLDPWD/garbage" install
+)
+
+export PATH="$PWD/garbage/usr/bin:$PATH"
+
+(
+    cd libraries/libapparmor
+    ./configure \
+        --prefix=/usr \
+        --sbindir=/usr/bin \
+	--enable-man-pages
+)
+
+echo building libapparmor
+make -C libraries/libapparmor
+make -C libraries/libapparmor \
+    DESTDIR="$1" \
+    install
+
+echo building binutils
+make -C binutils arch
+make -C binutils \
+    DESTDIR="$1" \
+    SBINDIR="$1/usr/bin" \
+    USR_SBINDIR="$1/usr/bin" \
+    install-arch
+
+echo building parser
+make -C parser arch
+make -C parser \
+    DESTDIR="$1" \
+    SBINDIR="$1/usr/bin" \
+    USR_SBINDIR="$1/usr/bin" \
+    APPARMOR_BIN_PREFIX="$1/usr/lib/apparmor" \
+    install-arch install-systemd
+
+echo building profiles
+make -C profiles
+make -C profiles \
+    DESTDIR="$1" \
+    install
+
+echo building utils/vim
+make -C utils/vim
+make -C utils/vim \
+    DESTDIR="$1" \
+    SBINDIR="$1/usr/bin" \
+    USR_SBINDIR="$1/usr/bin" \
+    BINDIR="$1/usr/bin" \
+    VIM_INSTALL_PATH="$1/usr/share/vim/vimfiles/syntax" \
+    install
+
+echo building pam_apparmor
+make -C changehat/pam_apparmor
+make -C changehat/pam_apparmor \
+    DESTDIR="$1/usr" \
+    install

@@ -1,0 +1,21 @@
+#!/bin/sh -e
+
+./configure \
+    --prefix=/usr \
+    --bindir=/usr/bin \
+    --sbindir=/usr/bin \
+    --sysconfdir=/etc \
+    --libdir=/usr/lib \
+    --disable-regenerate-docu \
+    --enable-securedir=/lib/security
+
+make
+make DESTDIR="$1" install
+
+install -v -m755 -d "$1/etc/pam.d"
+
+install -v -m644 system-account "$1/etc/pam.d/system-account"
+install -v -m644 system-auth "$1/etc/pam.d/system-auth"
+install -v -m644 system-session "$1/etc/pam.d/system-session"
+install -v -m644 system-password "$1/etc/pam.d/system-password"
+install -v -m644 other "$1/etc/pam.d/other"

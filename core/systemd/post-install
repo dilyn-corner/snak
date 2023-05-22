@@ -1,0 +1,8 @@
+#!/bin/sh -e
+
+systemd-machine-id-setup
+systemctl preset-all
+
+systemctl disable systemd-sysupdate        || true
+systemctl disable systemd-sysupdate-reboot || true
+kiss a systemd /etc/pam.d/system-session   || true

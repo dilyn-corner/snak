@@ -1,0 +1,50 @@
+#!/bin/sh -e
+
+[ -n "$KISS_EFI_PART" ] || {
+    echo KISS_EFI_PART is not set!
+    echo If your EFI partition is mounted somewhere NOT /boot,
+    echo Please set KISS_EFI_PART to the directory
+    echo you mount your EFI partition to.
+    echo The default vmlinuz install location is /boot.
+}
+
+# Generate a generic amd64 config
+python \
+    debian/scripts/misc/annotations \
+    --arch amd64 \
+    --flavour generic \
+    --export > .config
+
+# Don't set any KEYS values.
+# IKHEADERS requires something more than busybox
+# DWARF5 requires pahole
+# Don't lockdown; we aren't intending to use SecureBoot etc.
+{ echo 'CONFIG_DEFAULT_HOSTNAME="snak"'; \
+  echo 'CONFIG_SYSTEM_TRUSTED_KEYS=""'; \
+  echo 'CONFIG_SYSTEM_REVOCATION_KEYS=""'; \
+  echo '# CONFIG_IKHEADERS is not set'; \
+  echo '# CONFIG_MODULE_SIG is not set'; \
+  echo '# CONFIG_DEBUG_INFO_DWARF5 is not set'; \
+  echo '# CONFIG_SECURITY_LOCKDOWN_LSM is not set'; } >> .config
+
+#echo 'CONFIG_VFAT_FS=y'               >> .config
+#echo 'CONFIG_NLS_UTF8=y'              >> .config
+#echo 'CONFIG_NLS_ASCII=y'             >> .config
+#echo 'CONFIG_BLK_DEV_NVME=y'          >> .config
+#echo 'CONFIG_NLS_ISO8859_1=y'         >> .config
+#echo 'CONFIG_KERNEL_XZ=y'             >> .config
+
+# install target doesn't create the directory
+mkdir -p "${1}/${KISS_EFI_PART:-boot}"
+
+# oldconfig target fixes the generated .config
+make olddefconfig
+make KERNELVERSION="$2"
+make INSTALL_PATH="$1/${KISS_EFI_PART:-boot}"     install
+make INSTALL_MOD_PATH="$1/usr" INSTALL_MOD_STRIP=1 modules_install
+
+ln -sf vmlinuz "$1/${KISS_EFI_PART:-boot}/vmlinuz-${2}"
+
+# Remove broken links
+unlink "$1/usr/lib/modules/${2}+/build"
+unlink "$1/usr/lib/modules/${2}+/source"

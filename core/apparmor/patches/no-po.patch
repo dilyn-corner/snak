@@ -1,0 +1,35 @@
+--- a/binutils/Makefile
++++ b/binutils/Makefile
+@@ -93,8 +93,6 @@
+ endif
+ export Q VERBOSE BUILD_OUTPUT
+ 
+-po/%.pot: %.c
+-	$(MAKE) -C po $(@F) NAME=$* SOURCES=$*.c
+ 
+ # targets arranged this way so that people who don't want full docs can
+ # pick specific targets they want.
+--- a/parser/Makefile
++++ b/parser/Makefile
+@@ -166,9 +166,6 @@
+ endif
+ export Q VERBOSE BUILD_OUTPUT
+ 
+-po/${NAME}.pot: ${SRCS} ${HDRS}
+-	$(MAKE) -C po ${NAME}.pot NAME=${NAME} SOURCES="${SRCS} ${HDRS}"
+-
+ techdoc.pdf: techdoc.tex
+ 	timestamp=$(shell date --utc "+%Y%m%d%H%M%S%z" -r $< );\
+ 	while pdflatex "\def\fixedpdfdate{$$timestamp}\input $<" ${BUILD_OUTPUT} || exit 1 ; \
+--- a/utils/Makefile
++++ b/utils/Makefile
+@@ -45,9 +45,6 @@
+ PYPREFIX=/usr
+ 
+ 
+-po/${NAME}.pot: ${TOOLS} ${PYMODULES}
+-	$(MAKE) -C po ${NAME}.pot NAME=${NAME} SOURCES="${TOOLS} ${PYMODULES}"
+-
+ .PHONY: install
+ install: ${MANPAGES} ${HTMLMANPAGES}
+ 	install -d ${CONFDIR}

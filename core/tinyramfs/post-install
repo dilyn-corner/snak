@@ -1,0 +1,12 @@
+#!/bin/sh -e
+
+cat << EOF
+Please update /etc/tinyramfs/config with details for your specific system.
+
+You should update at least the 'root=', 'hooks=', and 'root_type=' options.
+
+For more information on the various config options available,
+please see the documentation:
+/usr/share/man/man5/tinyramfs.5
+https://github.com/illiliti/tinyramfs/blob/master/doc/tinyramfs.5.scd
+EOF

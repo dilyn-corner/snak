@@ -1,0 +1,10 @@
+bash   make
+bison  make
+flex   make
+libelf
+linux-firmware
+m4     make
+perl   make
+python make
+tinyramfs
+zstd

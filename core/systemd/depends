@@ -1,0 +1,14 @@
+apparmor
+bash    make
+dbus
+gnu-efi
+gperf   make
+jinja2  make
+libcap
+libseccomp
+linux-pam
+meson   make
+openssl
+pkgconf make
+python  make
+util-linux

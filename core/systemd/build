@@ -1,0 +1,47 @@
+#!/bin/sh -ex
+
+export DESTDIR="$1"
+export LANG=en_US.UTF-8
+
+# We should be able to successfully build and install
+# without usingreapath --relative-to or ln --relative.
+patch -p1 < posix-ln-realpath.patch
+
+meson setup \
+    --prefix=/usr              \
+    --sysconfdir=/etc          \
+    --localstatedir=/var       \
+    -Dbuildtype=release        \
+    -Dversion-tag="${2}-snak"  \
+    -Ddefault-dnssec=no        \
+    -Dpamconfdir=/etc/pam.d    \
+    -Ddefault-dns-over-tls=yes \
+    -Dman=false		       \
+    -Db_lto=true               \
+    -Dhomed=false              \
+    -Dtests=false              \
+    -Dukify=false              \
+    -Dgcrypt=false             \
+    -Dmode=release             \
+    -Duserdb=false             \
+    -Dseccomp=true             \
+    -Dapparmor=true            \
+    -Dldconfig=false           \
+    -Dfirstboot=false          \
+    -Drpmmacrosdir=no          \
+    -Dinstall-tests=false      \
+    -Dlibcryptsetup=false      \
+    -Dkernel-install=false     \
+    -Ddefault-locale=C         \
+    -Dsbat-distro='snak'       \
+    -Dfallback-hostname='snak' \
+    . build
+
+ninja -C build
+ninja -C build install
+
+install -Dm644 systemd-user        "$1/etc/pam.d/systemd-user"
+install -Dm644 system-session      "$1/etc/pam.d/system-session"
+install -Dm644 20-wired.network    "$1/etc/systemd/network/20-wired.network"
+install -Dm644 25-wireless.network "$1/etc/systemd/network/25-wireless.network"
+install -Dm644 dns_servers.conf    "$1/etc/systemd/resolved.conf.d/dns_servers.conf"

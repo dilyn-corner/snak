@@ -1,0 +1,7 @@
+#!/bin/sh -e
+
+make -j1 all
+make INSTALLROOT="$1" PREFIX=/usr LIBDIR=/usr/lib install
+
+install -dm755                   "$1/usr/share/gnu-efi/apps/x86_64"
+install -Dm644 x86_64/apps/*.efi "$1/usr/share/gnu-efi/apps/x86_64/"

@@ -1,0 +1,9 @@
+apparmor
+automake make
+glib     make
+go       make
+libcap
+libseccomp
+squashfs-tools
+systemd
+xfsprogs

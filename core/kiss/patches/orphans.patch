@@ -1,0 +1,13 @@
+--- a/contrib/kiss-orphans
++++ b/contrib/kiss-orphans
+@@ -20,8 +20,8 @@
+         sed s,.\*/depends:,,
+ 
+         # Exclude packages which are not really orphans.
+-        printf '%s\n' baseinit baselayout busybox bzip2 e2fsprogs gcc \
+-                      git grub kiss make musl
++        printf '%s\n' apparmor baselayout busybox bzip2 curl dash dbus \
++                      e2fsprogs gcc git glibc kiss libseccomp linux make systemd
+     } |
+ 
+     # Remove duplicates.
