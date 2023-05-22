@@ -1,0 +1,20 @@
+ __
+|_
+__|nak LINUX
+________________________________________________________________________________
+
+
+Main Repository
+________________________________________________________________________________
+
+
+The official repository for snak Linux.
+
+This is a fork of KISS Linux aimed at including snapd. This is a personal
+project with the ultimate goal of providing myself with a robust enough
+development environment that I don't *need* to use Ubuntu, but don't miss out on
+the benefits of snap packaging.
+
+!!This is highly unstable!!
+
+More information forthcoming.
